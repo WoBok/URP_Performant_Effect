@@ -3,30 +3,30 @@ Shader "UPR Performant Effect/Simple Light" {
         _BaseMap ("Albedo", 2D) = "white" { }
 
         [Space(15)]
-        _LightDirection ("Light Direction", vector) = (0.3, 0.1, -0.1, 0)
+        _LightDirection ("Light Direction", vector) = (0.1, 0.2, 0.1, 0)
 
         [Header(Diffuse)]
         [Toggle]DiffuseSwitch ("Diffuse Switch", int) = 1
         _FrontLightColor ("Front Light Color", Color) = (1, 1, 1, 1)
         _BackLightColor ("Back Light Color", Color) = (1, 1, 1, 1)
-        _DiffuseFrontIntensity ("Diffuse Front Intensity", float) = 0.7
+        _DiffuseFrontIntensity ("Diffuse Front Intensity", float) = 1
         _DiffuseBackIntensity ("Diffuse Back Intensity", float) = 0.3
 
         [Header(Specular)]
         [Toggle]SpecularSwitch ("Specular Switch", int) = 1
         _SpecularColor ("Specular Color", Color) = (1, 1, 1, 1)
-        _SpecularIntensity ("Specular Intensity", Range(0, 10)) = 5
-        _Smoothness ("Smoothness", Range(0.03, 2)) = 0.5
+        _SpecularIntensity ("Specular Intensity", Range(0, 10)) = 1
+        _Smoothness ("Smoothness", Range(0.03, 2)) = 0.35
 
         [Header(Fresnel)]
-        [Toggle]FresnelSwitch ("Fresnel Switch", int) = 0
-        _FresnelColor ("Fresnel Color", Color) = (0, 0, 0, 0)
-        _FresnelPower ("Fresnel Power", Range(0, 8)) = 0
+        [Toggle]FresnelSwitch ("Fresnel Switch", int) = 1
+        _FresnelColor ("Fresnel Color", Color) = (1, 1, 1, 0)
+        _FresnelPower ("Fresnel Power", Range(0, 8)) = 3
 
         [Header(Alpha)]
         _Alpah ("Alpha", Range(0, 1)) = 1
         [Toggle]AlphaClipping ("Alpah Clipping", int) = 0
-        _AlphaClipThreshold ("Threshold", Range(0, 1)) = 1
+        _AlphaClipThreshold ("Threshold", Range(0, 1)) = 0.5
 
         [Header(Other Settings)]
         [Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", float) = 1
@@ -83,10 +83,10 @@ Shader "UPR Performant Effect/Simple Light" {
             half4 _SpecularColor;
             half _SpecularIntensity;
             half _Smoothness;
-            half _Alpah;
-            half _AlphaClipThreshold;
             half4 _FresnelColor;
             half _FresnelPower;
+            half _Alpah;
+            half _AlphaClipThreshold;
             CBUFFER_END
 
             Varyings Vertex(Attributes input) {
@@ -95,9 +95,9 @@ Shader "UPR Performant Effect/Simple Light" {
                 
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 
-                #if defined(DIFFUSESWITCH_ON) || defined(SPECULARSWITCH_ON)
-                    output.normalWS = normalize(mul(input.normalOS, (float3x3)unity_WorldToObject));
-                    #if defined(SPECULARSWITCH_ON)
+                #if defined(DIFFUSESWITCH_ON) || defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON)
+                    output.normalWS = mul(input.normalOS, (float3x3)unity_WorldToObject);
+                    #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON)
                         output.positionWS = mul(unity_ObjectToWorld, input.positionOS).xyz;
                     #else
                         output.positionWS = half3(0, 0, 0);
@@ -112,14 +112,17 @@ Shader "UPR Performant Effect/Simple Light" {
             half4 Fragment(Varyings input) : SV_Target {
 
                 half4 albedo = tex2D(_BaseMap, input.uv);
+                half3 color = albedo.rgb;
 
+                half3 normalWS = normalize(input.normalWS);
                 half3 lightDirWS = normalize(_LightDirection.xyz);
 
                 #if defined(DIFFUSESWITCH_ON)
-                    half halfLambert = dot(input.normalWS, lightDirWS) * 0.5 + 0.5;
+                    half halfLambert = dot(normalWS, lightDirWS) * 0.5 + 0.5;
                     half3 diffuse = _FrontLightColor.rgb * albedo.rgb * halfLambert * _DiffuseFrontIntensity;
                     half oneMinusHalfLambert = 1 - halfLambert;
                     diffuse += _BackLightColor.rgb * albedo.rgb * oneMinusHalfLambert * _DiffuseBackIntensity;
+                    color = diffuse;
                 #endif
 
                 #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON)
@@ -128,21 +131,12 @@ Shader "UPR Performant Effect/Simple Light" {
 
                 #if defined(SPECULARSWITCH_ON)
                     half3 halfDir = normalize(lightDirWS + viewDir);
-                    half3 specular = _SpecularColor.rgb * pow(max(0, dot(input.normalWS, halfDir)), _Smoothness * 256) * _SpecularIntensity;
-                #endif
-
-                #if defined(FRESNELSWITCH_ON)
-                    half3 fresnel = pow((1 - saturate(dot(input.normalWS, viewDir))), _FresnelPower) * _FresnelColor;
-                #endif
-
-                half3 color = albedo.rgb;
-                #if defined(DIFFUSESWITCH_ON)
-                    color = diffuse;
-                #endif
-                #if defined(SPECULARSWITCH_ON)
+                    half3 specular = _SpecularColor.rgb * pow(max(0, dot(normalWS, halfDir)), _Smoothness * 256) * _SpecularIntensity;
                     color += specular;
                 #endif
+
                 #if defined(FRESNELSWITCH_ON)
+                    half3 fresnel = pow((1 - saturate(dot(normalWS, viewDir))), _FresnelPower) * _FresnelColor.rgb;
                     color += fresnel;
                 #endif
 

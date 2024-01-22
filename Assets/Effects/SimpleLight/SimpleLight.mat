@@ -26,6 +26,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - DIFFUSESWITCH_ON
+  - FRESNELSWITCH_ON
   m_InvalidKeywords:
   - SHADOWSWITCH_ON
   m_LightmapFlags: 4
@@ -98,6 +99,7 @@ Material:
     m_Floats:
     - AlphaClipping: 0
     - DiffuseSwitch: 1
+    - FresnelSwitch: 1
     - ShadowSwitch: 1
     - SpecularSwitch: 0
     - _Alpah: 1
@@ -115,9 +117,10 @@ Material:
     - _DetailNormalMapScale: 1
     - _DiffuseBackIntensity: -0
     - _DiffuseFrontIntensity: 1
-    - _DstBlend: 0
+    - _DstBlend: 10
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _FresnelPower: 0
     - _Gloss: 2
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -133,7 +136,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularIntensity: 0
-    - _SrcBlend: 1
+    - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _WorkflowMode: 1
@@ -144,6 +147,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FresnelColor: {r: 1, g: 0, b: 0, a: 1}
     - _FrontLightColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightDirection: {r: 0.1, g: 0.2, b: 0.1, a: 0}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}

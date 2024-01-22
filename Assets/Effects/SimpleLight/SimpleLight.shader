@@ -18,6 +18,11 @@ Shader "UPR Performant Effect/Simple Light" {
         _SpecularIntensity ("Specular Intensity", Range(0, 10)) = 5
         _Smoothness ("Smoothness", Range(0.03, 2)) = 0.5
 
+        [Header(Fresnel)]
+        [Toggle]FresnelSwitch ("Fresnel Switch", int) = 0
+        _FresnelColor ("Fresnel Color", Color) = (0, 0, 0, 0)
+        _FresnelPower ("Fresnel Power", Range(0, 8)) = 0
+
         [Header(Alpha)]
         _Alpah ("Alpha", Range(0, 1)) = 1
         [Toggle]AlphaClipping ("Alpah Clipping", int) = 0
@@ -49,6 +54,7 @@ Shader "UPR Performant Effect/Simple Light" {
 
             #pragma shader_feature DIFFUSESWITCH_ON
             #pragma shader_feature SPECULARSWITCH_ON
+            #pragma shader_feature FRESNELSWITCH_ON
             #pragma shader_feature ALPHACLIPPING_ON
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -79,6 +85,8 @@ Shader "UPR Performant Effect/Simple Light" {
             half _Smoothness;
             half _Alpah;
             half _AlphaClipThreshold;
+            half4 _FresnelColor;
+            half _FresnelPower;
             CBUFFER_END
 
             Varyings Vertex(Attributes input) {
@@ -114,10 +122,17 @@ Shader "UPR Performant Effect/Simple Light" {
                     diffuse += _BackLightColor.rgb * albedo.rgb * oneMinusHalfLambert * _DiffuseBackIntensity;
                 #endif
 
-                #if defined(SPECULARSWITCH_ON)
+                #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON)
                     half3 viewDir = normalize(_WorldSpaceCameraPos.xyz - input.positionWS.xyz);
+                #endif
+
+                #if defined(SPECULARSWITCH_ON)
                     half3 halfDir = normalize(lightDirWS + viewDir);
                     half3 specular = _SpecularColor.rgb * pow(max(0, dot(input.normalWS, halfDir)), _Smoothness * 256) * _SpecularIntensity;
+                #endif
+
+                #if defined(FRESNELSWITCH_ON)
+                    half3 fresnel = pow((1 - saturate(dot(input.normalWS, viewDir))), _FresnelPower) * _FresnelColor;
                 #endif
 
                 half3 color = albedo.rgb;
@@ -126,6 +141,9 @@ Shader "UPR Performant Effect/Simple Light" {
                 #endif
                 #if defined(SPECULARSWITCH_ON)
                     color += specular;
+                #endif
+                #if defined(FRESNELSWITCH_ON)
+                    color += fresnel;
                 #endif
 
                 #if defined(ALPHACLIPPING_ON)

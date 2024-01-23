@@ -74,7 +74,7 @@ namespace UnityEngine.UI
             get
             {
                 if (m_BlurredBackgroundMaterial == null)
-                    m_BlurredBackgroundMaterial = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blur Texture"));
+                    m_BlurredBackgroundMaterial = new Material(Shader.Find("URP Shader/NewURPShader"));
                 return m_BlurredBackgroundMaterial;
             }
         }

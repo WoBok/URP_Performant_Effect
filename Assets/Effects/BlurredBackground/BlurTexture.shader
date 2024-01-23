@@ -1,6 +1,5 @@
 Shader "UPR Performant Effect/Blurred Background/Blur Texture" {
     Properties {
-        _MainTex ("Texture", 2D) = "white" { }
         _BlurOffset ("Blur Offset", Vector) = (5, 5, 0, 0)
     }
 

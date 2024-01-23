@@ -1,6 +1,5 @@
 Shader "URP Shader/NewURPShader" {
     Properties {
-        _BaseMap ("Albedo", 2D) = "white" { }
         _BaseColor ("Color", Color) = (0, 1, 1, 1)
     }
 
@@ -19,9 +18,7 @@ Shader "URP Shader/NewURPShader" {
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
             
-            sampler2D _BaseMap;
             CBUFFER_START(UnityPerMaterial)
-            float4 _BaseMap_ST;
             half4 _BaseColor;
             CBUFFER_END
 
@@ -39,9 +36,7 @@ Shader "URP Shader/NewURPShader" {
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
             
-            sampler2D _BaseMap;
             CBUFFER_START(UnityPerMaterial)
-            float4 _BaseMap_ST;
             half4 _BaseColor;
             CBUFFER_END
 

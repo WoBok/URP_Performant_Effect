@@ -1,6 +1,6 @@
 Shader "UPR Performant Effect/Blurred Background/Blur Texture 2" {
     Properties {
-        _BlurSize ("Blur Size", float) = 1
+        _BlurSize ("Blur Size", float) = 2
     }
 
     SubShader {
@@ -28,11 +28,8 @@ Shader "UPR Performant Effect/Blurred Background/Blur Texture 2" {
 
             #include "BlurTexture.hlsl"
             #pragma vertex VertexBlurHorizontal
-            #pragma fragment Fragment1
+            #pragma fragment Fragment
 
-            half4 Fragment1(Varyings input) : SV_Target {
-    return half4(1, 1, 0, 1);
-}
             ENDHLSL
         }
     }

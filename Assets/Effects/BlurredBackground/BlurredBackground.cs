@@ -1,3 +1,4 @@
+using System;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -18,6 +19,24 @@ namespace UnityEngine.UI
             base.OnEnable();
             CreatePass();
             RenderPipelineManager.beginCameraRendering += beginCameraRendering;
+            onCullStateChanged.AddListener(OnCullStateChanged);
+        }
+
+         void OnCullStateChanged(bool arg0)
+        {
+            Debug.Log("OnCullStateChanged");
+        }
+        private void OnBecameInvisible()
+        {
+            Debug.Log("OnBecameInvisible");
+        }
+        private void OnBecameVisible()
+        {
+            Debug.Log("OnBecameVisible");
+        }
+        private void OnRenderImage(RenderTexture source, RenderTexture destination)
+        {
+            Debug.Log("OnRenderImage");
         }
         protected override void OnDisable()
         {
@@ -25,6 +44,7 @@ namespace UnityEngine.UI
             RenderPipelineManager.beginCameraRendering -= beginCameraRendering;
             if (m_RenderPass != null)
                 m_RenderPass.ReleaseRT();
+            onCullStateChanged.RemoveListener(OnCullStateChanged);
         }
         protected override void OnDestroy()
         {
@@ -74,7 +94,7 @@ namespace UnityEngine.UI
             get
             {
                 if (m_BlurredBackgroundMaterial == null)
-                    m_BlurredBackgroundMaterial = new Material(Shader.Find("URP Shader/NewURPShader"));
+                    m_BlurredBackgroundMaterial = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blur Texture 2"));
                 return m_BlurredBackgroundMaterial;
             }
         }
@@ -143,9 +163,11 @@ namespace UnityEngine.UI
             cmd.Clear();
 
             Blit(cmd, source, BlurredBackgroundRTHandle);
-            Blit(cmd, BlurredBackgroundRTHandle, BlurredBackgroundRTHandleTemp, BlurredBackgroundMaterial, 0);
-            Blit(cmd, BlurredBackgroundRTHandleTemp, BlurredBackgroundRTHandle, BlurredBackgroundMaterial, 1);
-
+            for (int i = 0; i < 1; i++)
+            {
+                Blit(cmd, BlurredBackgroundRTHandle, BlurredBackgroundRTHandleTemp, BlurredBackgroundMaterial, 0);
+                Blit(cmd, BlurredBackgroundRTHandleTemp, BlurredBackgroundRTHandle, BlurredBackgroundMaterial, 1);
+            }
             cmd.SetGlobalTexture("_BlurredBackgroundRT", BlurredBackgroundRTHandle);
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();

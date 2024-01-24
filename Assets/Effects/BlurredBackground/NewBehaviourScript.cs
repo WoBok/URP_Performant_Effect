@@ -1,26 +1,31 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class NewBehaviourScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    MeshRenderer meshRenderer;
+    void Awake()
     {
-        
+    }
+    private void OnBecameVisible()
+    {
+        Debug.Log("OnBecameVisible");
+    }
+    private void OnBecameInvisible()
+    {
+        Debug.Log("OnBecameInvisible");
+    }
+    void SetMesh()
+    {
+        //GetComponent<MeshRenderer>().bounds = new Bounds(transform.position, Vector3.one);
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnDrawGizmos()
     {
-        
-    }
-     void OnBecameInvisible()
-    {
-        Debug.Log("OnBecameInvisible");
-    }
-     void OnBecameVisible()
-    {
-        Debug.Log("OnBecameInvisible");
+        meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer.bounds = new Bounds(transform.position, Vector3.one);
+        var bounds = meshRenderer.bounds;
+        Gizmos.DrawCube(bounds.center, bounds.size);
+        //Debug.Log(bounds.center+""+ bounds.size);
     }
 }

@@ -1,42 +1,69 @@
-using System;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace UnityEngine.UI
 {
-    //-----------------------------------------------------------------Image-----------------------------------------------------------------//
     public partial class BlurredBackground : Image
     {
-        BlurredBackgroundRenderPass m_RenderPass;
+        BlurRenderPass m_RenderPass;
+        int m_BlurSize = 1;
+        public int blurSize
+        {
+            get => m_BlurSize;
+            set
+            {
+                if (value != m_BlurSize)
+                {
+                    m_BlurSize = value;
+                    m_RenderPass.BlurSize = value;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
+        int m_DownSample = 7;
+        public int downSample
+        {
+            get => m_DownSample;
+            set
+            {
+                if (value != m_DownSample)
+                {
+                    m_DownSample = value;
+                    m_RenderPass.DownSample = (10 - value) / 10f;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
+        int m_Iterations = 1;
+        public int iterations
+        {
+            get => m_Iterations;
+            set
+            {
+                if (value != m_Iterations)
+                {
+                    m_Iterations = value;
+                    m_RenderPass.Iterations = value;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
+        //Rect¸Ä±äÊ±
+
         protected override void Awake()
         {
             base.Awake();
             CreatePass();
-            material = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blurred Background"));
+            SetMaterial();
         }
         protected override void OnEnable()
         {
             base.OnEnable();
             CreatePass();
             RenderPipelineManager.beginCameraRendering += beginCameraRendering;
-            onCullStateChanged.AddListener(OnCullStateChanged);
-        }
-
-         void OnCullStateChanged(bool arg0)
-        {
-            Debug.Log("OnCullStateChanged");
-        }
-        private void OnBecameInvisible()
-        {
-            Debug.Log("OnBecameInvisible");
-        }
-        private void OnBecameVisible()
-        {
-            Debug.Log("OnBecameVisible");
-        }
-        private void OnRenderImage(RenderTexture source, RenderTexture destination)
-        {
-            Debug.Log("OnRenderImage");
         }
         protected override void OnDisable()
         {
@@ -44,7 +71,6 @@ namespace UnityEngine.UI
             RenderPipelineManager.beginCameraRendering -= beginCameraRendering;
             if (m_RenderPass != null)
                 m_RenderPass.ReleaseRT();
-            onCullStateChanged.RemoveListener(OnCullStateChanged);
         }
         protected override void OnDestroy()
         {
@@ -60,143 +86,27 @@ namespace UnityEngine.UI
             if (data == null) return;
             if (m_RenderPass != null)
                 data.scriptableRenderer.EnqueuePass(m_RenderPass);
-        }
-        protected override void OnPopulateMesh(VertexHelper toFill)
-        {
-            base.OnPopulateMesh(toFill);
+            Debug.Log("beginCameraRendering");
         }
 #if UNITY_EDITOR
         protected override void Reset()
         {
             base.Reset();
             CreatePass();
-            material = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blurred Background"));
+            SetMaterial();
         }
 #endif
         void CreatePass()
         {
             if (m_RenderPass == null)
             {
-                m_RenderPass = new BlurredBackgroundRenderPass();
+                m_RenderPass = new BlurRenderPass();
                 m_RenderPass.renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
             }
         }
-    }
-    //-----------------------------------------------------------------Image-----------------------------------------------------------------//
-
-    //------------------------------------------------------------------Pass------------------------------------------------------------------//
-    public class BlurredBackgroundRenderPass : ScriptableRenderPass
-    {
-        const float renderScale = 0.3f;
-        Material m_BlurredBackgroundMaterial;
-        Material BlurredBackgroundMaterial
+        void SetMaterial()
         {
-            get
-            {
-                if (m_BlurredBackgroundMaterial == null)
-                    m_BlurredBackgroundMaterial = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blur Texture 2"));
-                return m_BlurredBackgroundMaterial;
-            }
-        }
-        RenderTexture m_BlurredBackgroundRenderTexture;
-        public RenderTexture BlurredBackgroundRenderTexture
-        {
-            get
-            {
-                if (m_BlurredBackgroundRenderTexture == null)
-                {
-                    m_BlurredBackgroundRenderTexture = new RenderTexture((int)(Screen.width * renderScale), (int)(Screen.height * renderScale), 0);
-                    m_BlurredBackgroundRenderTexture.filterMode = FilterMode.Bilinear;
-                }
-                return m_BlurredBackgroundRenderTexture;
-            }
-        }
-        RenderTexture m_BlurredBackgroundRenderTextureTemp;
-        RenderTexture BlurredBackgroundRenderTextureTemp
-        {
-            get
-            {
-                if (m_BlurredBackgroundRenderTextureTemp == null)
-                {
-                    m_BlurredBackgroundRenderTextureTemp = new RenderTexture((int)(Screen.width * renderScale), (int)(Screen.height * renderScale), 0);
-                    m_BlurredBackgroundRenderTextureTemp.filterMode = FilterMode.Bilinear;
-                }
-                return m_BlurredBackgroundRenderTextureTemp;
-            }
-        }
-        RTHandle m_BlurredBackgroundRTHandle;
-        RTHandle BlurredBackgroundRTHandle
-        {
-            get
-            {
-                if (m_BlurredBackgroundRTHandle == null)
-                    m_BlurredBackgroundRTHandle = RTHandles.Alloc(BlurredBackgroundRenderTexture);
-                return m_BlurredBackgroundRTHandle;
-            }
-        }
-        RTHandle m_BlurredBackgroundRTHandleTemp;
-        RTHandle BlurredBackgroundRTHandleTemp
-        {
-            get
-            {
-                if (m_BlurredBackgroundRTHandleTemp == null)
-                    m_BlurredBackgroundRTHandleTemp = RTHandles.Alloc(BlurredBackgroundRenderTextureTemp);
-                return m_BlurredBackgroundRTHandleTemp;
-            }
-        }
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        {
-            base.OnCameraSetup(cmd, ref renderingData);
-            ConfigureInput(ScriptableRenderPassInput.Color);
-        }
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-#if UNITY_EDITOR
-            if (renderingData.cameraData.cameraType == CameraType.SceneView
-                || renderingData.cameraData.cameraType == CameraType.Preview)
-                return;
-#endif
-
-            var source = renderingData.cameraData.renderer.cameraColorTargetHandle;
-
-            CommandBuffer cmd = CommandBufferPool.Get("Blurred Background Pass");
-            cmd.Clear();
-
-            Blit(cmd, source, BlurredBackgroundRTHandle);
-            for (int i = 0; i < 1; i++)
-            {
-                Blit(cmd, BlurredBackgroundRTHandle, BlurredBackgroundRTHandleTemp, BlurredBackgroundMaterial, 0);
-                Blit(cmd, BlurredBackgroundRTHandleTemp, BlurredBackgroundRTHandle, BlurredBackgroundMaterial, 1);
-            }
-            cmd.SetGlobalTexture("_BlurredBackgroundRT", BlurredBackgroundRTHandle);
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
-
-            CommandBufferPool.Release(cmd);
-        }
-        public void ReleaseRT()
-        {
-            if (m_BlurredBackgroundRTHandle != null)
-            {
-                m_BlurredBackgroundRTHandle.Release();
-                m_BlurredBackgroundRTHandle = null;
-            }
-            if (m_BlurredBackgroundRTHandleTemp != null)
-            {
-                m_BlurredBackgroundRTHandleTemp.Release();
-                m_BlurredBackgroundRTHandleTemp = null;
-            }
-            if (m_BlurredBackgroundRenderTexture != null)
-            {
-                m_BlurredBackgroundRenderTexture.Release();
-                m_BlurredBackgroundRenderTexture = null;
-            }
-            if (m_BlurredBackgroundRenderTextureTemp != null)
-            {
-                m_BlurredBackgroundRenderTextureTemp.Release();
-                m_BlurredBackgroundRenderTextureTemp = null;
-            }
+            material = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blurred Background"));
         }
     }
-    //------------------------------------------------------------------Pass------------------------------------------------------------------//
 }

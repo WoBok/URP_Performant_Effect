@@ -1,5 +1,5 @@
-#ifndef PASS_INCLUDED
-#define PASS_INCLUDED
+#ifndef BLURTEXTRUE_INCLUDED
+#define BLURTEXTRUE_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 

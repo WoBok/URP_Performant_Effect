@@ -51,8 +51,6 @@ namespace UnityEngine.UI
             }
         }
 
-        //Rect¸Ä±äÊ±
-
         protected override void Awake()
         {
             base.Awake();

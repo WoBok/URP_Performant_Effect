@@ -13,7 +13,7 @@ namespace UnityEditor.UI
             {
                 image.blurSize = EditorGUILayout.IntSlider("Blur Size", image.blurSize, 1, 10);
                 image.downSample = EditorGUILayout.IntSlider("Down Sample", image.downSample, 0, 9);
-                image.iterations = EditorGUILayout.IntSlider("Down Sample", image.iterations, 1, 10);
+                image.iterations = EditorGUILayout.IntSlider("Iterations", image.iterations, 1, 10);
             }
         }
     }

@@ -108,8 +108,9 @@ public class BlurRenderPass : ScriptableRenderPass
 
         CommandBuffer cmd = CommandBufferPool.Get("Blurred Background Pass");
         cmd.Clear();
-        //改变过滤模式为Point
+
         Blit(cmd, source, BlurredBackgroundRTHandle);
+
         for (int i = 0; i < Iterations; i++)
         {
             Blit(cmd, BlurredBackgroundRTHandle, BlurredBackgroundRTHandleTemp, BlurredBackgroundMaterial, 0);

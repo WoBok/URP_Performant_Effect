@@ -40,6 +40,11 @@ public class BlurRenderPassManager
         {
             m_IsPassRunning = false;
             RenderPipelineManager.beginCameraRendering -= beginCameraRendering;
+            if (m_BlurRenderPass != null)
+            {
+                m_BlurRenderPass.ReleaseRT();
+                m_BlurRenderPass = null;
+            }
         }
     }
     void beginCameraRendering(ScriptableRenderContext context, Camera camera)
@@ -47,8 +52,7 @@ public class BlurRenderPassManager
         if (camera == null || !camera.isActiveAndEnabled || !camera.CompareTag("MainCamera")) return;
         var data = camera.GetUniversalAdditionalCameraData();
         if (data == null) return;
-        if (BlurRenderPass != null)
-            data.scriptableRenderer.EnqueuePass(BlurRenderPass);
+        data.scriptableRenderer.EnqueuePass(BlurRenderPass);
         Debug.Log("beginCameraRendering");
     }
     public void SetAllImageVerticesDirty()

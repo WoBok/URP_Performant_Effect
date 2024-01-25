@@ -33,6 +33,10 @@ public class BlurRenderPass : ScriptableRenderPass
     {
         set => BlurredBackgroundMaterial.SetInt("_BlurSize", value);
     }
+    public BlurRenderPass()
+    {
+        renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+    }
     RenderTexture m_BlurredBackgroundRenderTexture;
     public RenderTexture BlurredBackgroundRenderTexture
     {

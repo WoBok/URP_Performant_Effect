@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 18011865}
   - component: {fileID: 18011864}
   m_Layer: 0
-  m_Name: BlurRenderPassSettings
+  m_Name: BlurRenderPassSettings (Play Mode)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,7 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 880755c8e8fcea74187c7113125b27e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_BlurSize: 2
 --- !u!4 &18011865
 Transform:
   m_ObjectHideFlags: 0
@@ -270,7 +269,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!21 &1153842780
+--- !u!21 &1101575495
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -580,7 +579,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: -5}
-  m_SizeDelta: {x: 30, y: 53.09}
+  m_SizeDelta: {x: 30, y: 50}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1521174358
 MonoBehaviour:
@@ -594,7 +593,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57964533e0a17b040a270c764485a2b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1153842780}
+  m_Material: {fileID: 1101575495}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

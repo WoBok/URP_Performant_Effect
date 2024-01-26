@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEngine.XR.XRDisplaySubsystem;
 
 public class BlurRenderPassSettings : MonoBehaviour
 {
@@ -9,52 +8,46 @@ public class BlurRenderPassSettings : MonoBehaviour
         get => m_BlurSize;
         set
         {
-            m_BlurSize = value;
-            Debug.Log("m_BlurSize" + value);
+            if (value != m_BlurSize)
+            {
+                m_BlurSize = value;
+                BlurRenderPassManager.Instance.BlurRenderPass.BlurSize = value;
+                BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
+            }
         }
     }
-    //int m_BlurSize = 1;
-    //public int blurSize
-    //{
-    //    get => m_BlurSize;
-    //    set
-    //    {
-    //        if (value != m_BlurSize)
-    //        {
-    //            m_BlurSize = value;
-    //            m_RenderPass.BlurSize = value;
-    //            SetVerticesDirty();
-    //        }
-    //    }
-    //}
-
-    //int m_DownSample = 7;
-    //public int downSample
-    //{
-    //    get => m_DownSample;
-    //    set
-    //    {
-    //        if (value != m_DownSample)
-    //        {
-    //            m_DownSample = value;
-    //            m_RenderPass.DownSample = (10 - value) / 10f;
-    //            SetVerticesDirty();
-    //        }
-    //    }
-    //}
-
-    //int m_Iterations = 1;
-    //public int iterations
-    //{
-    //    get => m_Iterations;
-    //    set
-    //    {
-    //        if (value != m_Iterations)
-    //        {
-    //            m_Iterations = value;
-    //            m_RenderPass.Iterations = value;
-    //            SetVerticesDirty();
-    //        }
-    //    }
-    //}
+    int m_DownSample = 7;
+    public int DownSample
+    {
+        get => m_DownSample;
+        set
+        {
+            if (value != m_DownSample)
+            {
+                m_DownSample = value;
+                BlurRenderPassManager.Instance.BlurRenderPass.DownSample = (10 - value) / 10f;
+                BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
+            }
+        }
+    }
+    int m_Iterations = 1;
+    public int Iterations
+    {
+        get => m_Iterations;
+        set
+        {
+            if (value != m_Iterations)
+            {
+                m_Iterations = value;
+                BlurRenderPassManager.Instance.BlurRenderPass.Iterations = value;
+                BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
+            }
+        }
+    }
+    void Awake()
+    {
+        BlurSize = m_BlurSize;
+        DownSample = m_DownSample;
+        Iterations = m_Iterations;
+    }
 }

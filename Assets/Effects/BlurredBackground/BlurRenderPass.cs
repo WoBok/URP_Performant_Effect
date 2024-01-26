@@ -25,7 +25,7 @@ public class BlurRenderPass : ScriptableRenderPass
         get
         {
             if (m_BlurredBackgroundMaterial == null)
-                m_BlurredBackgroundMaterial = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blur Texture 2"));
+                m_BlurredBackgroundMaterial = new Material(Shader.Find("UPR Performant Effect/Blurred Background/Blur Texture"));
             return m_BlurredBackgroundMaterial;
         }
     }
@@ -101,7 +101,6 @@ public class BlurRenderPass : ScriptableRenderPass
     }
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
-        Debug.Log("Rendering...");
 #if UNITY_EDITOR
         if (renderingData.cameraData.cameraType == CameraType.SceneView
             || renderingData.cameraData.cameraType == CameraType.Preview)

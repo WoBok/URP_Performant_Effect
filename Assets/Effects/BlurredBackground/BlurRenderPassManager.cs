@@ -14,13 +14,21 @@ public class BlurRenderPassManager
 
     List<BlurredBackground> m_BlurredBackgrounds = new List<BlurredBackground>();
     bool m_IsPassRunning;
-
+    /// <summary>
+    /// 缓存当前活跃模糊背景，并判断是否需要开启Pass
+    /// </summary>
+    /// <param name="background">模糊背景</param>
     public void Register(BlurredBackground background)
     {
         if (background == null) return;
-        m_BlurredBackgrounds.Add(background);
+        if (!m_BlurredBackgrounds.Contains(background))
+            m_BlurredBackgrounds.Add(background);
         ProcessPass();
     }
+    /// <summary>
+    /// 移除非活跃模糊背景，并判断是否需要开启Pass
+    /// </summary>
+    /// <param name="background">模糊背景</param>
     public void Unregister(BlurredBackground background)
     {
         if (background == null) return;
@@ -28,18 +36,21 @@ public class BlurRenderPassManager
         m_BlurredBackgrounds.Remove(background);
         ProcessPass();
     }
+    /// <summary>
+    /// 判断是否有活跃的模糊背景，如果有则开启Pass，如果无则关闭Pass
+    /// </summary>
     void ProcessPass()
     {
         if (m_BlurredBackgrounds.Count > 0)
         {
             if (m_IsPassRunning) return;
             m_IsPassRunning = true;
-            RenderPipelineManager.beginCameraRendering += beginCameraRendering;
+            RenderPipelineManager.beginCameraRendering += BeginCameraRendering;
         }
         else
         {
             m_IsPassRunning = false;
-            RenderPipelineManager.beginCameraRendering -= beginCameraRendering;
+            RenderPipelineManager.beginCameraRendering -= BeginCameraRendering;
             if (m_BlurRenderPass != null)
             {
                 m_BlurRenderPass.ReleaseRT();
@@ -47,14 +58,16 @@ public class BlurRenderPassManager
             }
         }
     }
-    void beginCameraRendering(ScriptableRenderContext context, Camera camera)
+    void BeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
         if (camera == null || !camera.isActiveAndEnabled || !camera.CompareTag("MainCamera")) return;
         var data = camera.GetUniversalAdditionalCameraData();
         if (data == null) return;
         data.scriptableRenderer.EnqueuePass(BlurRenderPass);
-        Debug.Log("beginCameraRendering");
     }
+    /// <summary>
+    /// 标记所有活跃的模糊背景顶点为脏
+    /// </summary>
     public void SetAllImageVerticesDirty()
     {
         foreach (var background in m_BlurredBackgrounds)

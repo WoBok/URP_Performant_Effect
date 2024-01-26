@@ -1,4 +1,4 @@
-Shader "UPR Performant Effect/Blurred Background/Blur Texture" {
+Shader "UPR Performant Effect/Blurred Background/Blur Texture Portion" {
     Properties {
         _BlurSize ("Blur Size", float) = 2
     }
@@ -12,10 +12,11 @@ Shader "UPR Performant Effect/Blurred Background/Blur Texture" {
 
         Pass {
             Name "Blur Horizontal"
-
+            Tags { "LightMode" = "UniversalForward" }
+            
             HLSLPROGRAM
 
-            #include "BlurTexture.hlsl"
+            #include "BlurTexturePortion.hlsl"
             #pragma vertex VertexBlurVertical
             #pragma fragment Fragment
             ENDHLSL
@@ -23,10 +24,11 @@ Shader "UPR Performant Effect/Blurred Background/Blur Texture" {
 
         Pass {
             Name "Blur Vertical"
+            Tags { "LightMode" = "SRPDefaultUnlit" }
 
             HLSLPROGRAM
 
-            #include "BlurTexture.hlsl"
+            #include "BlurTexturePortion.hlsl"
             #pragma vertex VertexBlurHorizontal
             #pragma fragment Fragment
 

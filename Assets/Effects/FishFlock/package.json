@@ -1,0 +1,11 @@
+{
+  "name": "com.wemake.fishflock",
+  "displayName": "Fishflock",
+  "version": "1.0.1",
+  "unity": "2022.3",
+  "description": "Fish Flock For Unity.",
+  "keywords": [
+    "Fish Flock"
+  ],
+  "dependencies": {}
+}

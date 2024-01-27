@@ -60,7 +60,7 @@ public class BlurRenderPassManager
     }
     void BeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
-        if (camera == null || !camera.isActiveAndEnabled || !camera.CompareTag("MainCamera")) return;
+        if (camera == null) return;
         var data = camera.GetUniversalAdditionalCameraData();
         if (data == null) return;
         data.scriptableRenderer.EnqueuePass(BlurRenderPass);

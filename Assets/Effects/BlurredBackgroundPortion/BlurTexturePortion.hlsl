@@ -11,9 +11,9 @@ struct Varyings {
     half2 uv[5] : TEXCOORD0;
 };
 
-TEXTURE2D_X(_BlitTexture);
-SAMPLER(sampler_BlitTexture);
-float4 _BlitTexture_TexelSize;
+TEXTURE2D_X(_CameraColorRT);
+SAMPLER(sampler_CameraColorRT);
+float4 _CameraColorRT_TexelSize;
 CBUFFER_START(UnityPerMaterial)
 float _BlurSize;
 CBUFFER_END
@@ -26,10 +26,10 @@ Varyings VertexBlurVertical(Attributes input) {
     half2 uv = GetFullScreenTriangleTexCoord(input.vertexID);
 
     output.uv[0] = uv;
-    output.uv[1] = uv + half2(0, _BlitTexture_TexelSize.y) * _BlurSize;
-    output.uv[2] = uv - half2(0, _BlitTexture_TexelSize.y) * _BlurSize;
-    output.uv[3] = uv + half2(0, _BlitTexture_TexelSize.y * 2) * _BlurSize;
-    output.uv[4] = uv - half2(0, _BlitTexture_TexelSize.y * 2) * _BlurSize;
+    output.uv[1] = uv + half2(0, _CameraColorRT_TexelSize.y) * _BlurSize;
+    output.uv[2] = uv - half2(0, _CameraColorRT_TexelSize.y) * _BlurSize;
+    output.uv[3] = uv + half2(0, _CameraColorRT_TexelSize.y * 2) * _BlurSize;
+    output.uv[4] = uv - half2(0, _CameraColorRT_TexelSize.y * 2) * _BlurSize;
 
     return output;
 }
@@ -41,10 +41,10 @@ Varyings VertexBlurHorizontal(Attributes input) {
     half2 uv = GetFullScreenTriangleTexCoord(input.vertexID);
 
     output.uv[0] = uv;
-    output.uv[1] = uv + half2(_BlitTexture_TexelSize.x, 0) * _BlurSize;
-    output.uv[2] = uv - half2(_BlitTexture_TexelSize.x, 0) * _BlurSize;
-    output.uv[3] = uv + half2(_BlitTexture_TexelSize.x * 2, 0) * _BlurSize;
-    output.uv[4] = uv - half2(_BlitTexture_TexelSize.x * 2, 0) * _BlurSize;
+    output.uv[1] = uv + half2(_CameraColorRT_TexelSize.x, 0) * _BlurSize;
+    output.uv[2] = uv - half2(_CameraColorRT_TexelSize.x, 0) * _BlurSize;
+    output.uv[3] = uv + half2(_CameraColorRT_TexelSize.x * 2, 0) * _BlurSize;
+    output.uv[4] = uv - half2(_CameraColorRT_TexelSize.x * 2, 0) * _BlurSize;
 
     return output;
 }
@@ -53,11 +53,11 @@ half4 Fragment(Varyings input) : SV_Target {
         0.4026, 0.2442, 0.0545
     };
     
-    half3 sum = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_BlitTexture, input.uv[0]).rgb * weight[0];
+    half3 sum = SAMPLE_TEXTURE2D_X(_CameraColorRT, sampler_CameraColorRT, input.uv[0]).rgb * weight[0];
     for (int i = 1; i < 3; i++) {
-        sum += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_BlitTexture, input.uv[2 * i - 1]).rgb * weight[i];
-        sum += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_BlitTexture, input.uv[2 * i]).rgb * weight[i];
+        sum += SAMPLE_TEXTURE2D_X(_CameraColorRT, sampler_CameraColorRT, input.uv[2 * i - 1]).rgb * weight[i];
+        sum += SAMPLE_TEXTURE2D_X(_CameraColorRT, sampler_CameraColorRT, input.uv[2 * i]).rgb * weight[i];
     }
-    return half4(sum, 1);
+    return half4(1,0,0, 1);
 }
 #endif

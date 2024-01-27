@@ -1,53 +1,35 @@
+using System.IO;
+using UnityEditor;
 using UnityEngine;
 
-public class BlurRenderPassSettings : MonoBehaviour
+public class BlurRenderPassSettings : ScriptableObject
 {
-    int m_BlurSize = 2;
-    public int BlurSize
+    public int BlurSize;
+    public int DownSample;
+    public int Iterations;
+    public static BlurRenderPassSettings GetSettings()
     {
-        get => m_BlurSize;
-        set
+        var passSettings = Resources.Load<BlurRenderPassSettings>("BlurredBackgroundSettings");
+        if (passSettings == null)
         {
-            if (value != m_BlurSize)
+            passSettings = CreateInstance<BlurRenderPassSettings>();
+            passSettings.BlurSize = 2;
+            passSettings.DownSample = 7;
+            passSettings.Iterations = 1;
+
+            string path = Application.dataPath + "/Resources";
+            if (!Directory.Exists(path))
             {
-                m_BlurSize = value;
-                BlurRenderPassManager.Instance.BlurRenderPass.BlurSize = value;
-                BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
+                AssetDatabase.CreateFolder("Assets", "Resources");
+                AssetDatabase.CreateAsset(passSettings, "Assets/Resources/BlurredBackgroundSettings.asset");
             }
-        }
-    }
-    int m_DownSample = 7;
-    public int DownSample
-    {
-        get => m_DownSample;
-        set
-        {
-            if (value != m_DownSample)
+            else
             {
-                m_DownSample = value;
-                BlurRenderPassManager.Instance.BlurRenderPass.DownSample = (10 - value) / 10f;
-                BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
+                AssetDatabase.CreateAsset(passSettings, "Assets/Resources/BlurredBackgroundSettings.asset");
             }
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
-    }
-    int m_Iterations = 1;
-    public int Iterations
-    {
-        get => m_Iterations;
-        set
-        {
-            if (value != m_Iterations)
-            {
-                m_Iterations = value;
-                BlurRenderPassManager.Instance.BlurRenderPass.Iterations = value;
-                BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
-            }
-        }
-    }
-    void Awake()
-    {
-        BlurSize = m_BlurSize;
-        DownSample = m_DownSample;
-        Iterations = m_Iterations;
+        return passSettings;
     }
 }

@@ -33,10 +33,6 @@ public class BlurRenderPass : ScriptableRenderPass
     {
         set => BlurredBackgroundMaterial.SetInt("_BlurSize", value);
     }
-    public BlurRenderPass()
-    {
-        renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
-    }
     RenderTexture m_BlurredBackgroundRenderTexture;
     public RenderTexture BlurredBackgroundRenderTexture
     {
@@ -85,6 +81,15 @@ public class BlurRenderPass : ScriptableRenderPass
             return m_BlurredBackgroundRTHandleTemp;
         }
     }
+    BlurRenderPassSettings passSettings;
+    public BlurRenderPass()
+    {
+        renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+        passSettings = BlurRenderPassSettings.GetSettings();
+        BlurSize = passSettings.BlurSize;
+        DownSample = passSettings.DownSample;
+        Iterations = passSettings.Iterations;
+    }
     void CreateRenderTexture(ref RenderTexture renderTexture)
     {
         renderTexture = new RenderTexture((int)(Screen.width * m_DownSample), (int)(Screen.height * m_DownSample), 0);
@@ -102,28 +107,30 @@ public class BlurRenderPass : ScriptableRenderPass
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
 #if UNITY_EDITOR
-        if (renderingData.cameraData.cameraType == CameraType.SceneView
-            || renderingData.cameraData.cameraType == CameraType.Preview)
+        if (renderingData.cameraData.cameraType == CameraType.Preview)
             return;
 #endif
 
         var source = renderingData.cameraData.renderer.cameraColorTargetHandle;
 
-        CommandBuffer cmd = CommandBufferPool.Get("Blurred Background Pass");
-        cmd.Clear();
-
-        Blit(cmd, source, BlurredBackgroundRTHandle);
-
-        for (int i = 0; i < Iterations; i++)
+        if (source != null)
         {
-            Blit(cmd, BlurredBackgroundRTHandle, BlurredBackgroundRTHandleTemp, BlurredBackgroundMaterial, 0);
-            Blit(cmd, BlurredBackgroundRTHandleTemp, BlurredBackgroundRTHandle, BlurredBackgroundMaterial, 1);
-        }
-        cmd.SetGlobalTexture("_BlurredBackgroundRT", BlurredBackgroundRTHandle);
-        context.ExecuteCommandBuffer(cmd);
-        cmd.Clear();
+            CommandBuffer cmd = CommandBufferPool.Get("Blurred Background Pass");
+            cmd.Clear();
 
-        CommandBufferPool.Release(cmd);
+            Blit(cmd, source, BlurredBackgroundRTHandle);
+
+            for (int i = 0; i < Iterations; i++)
+            {
+                Blit(cmd, BlurredBackgroundRTHandle, BlurredBackgroundRTHandleTemp, BlurredBackgroundMaterial, 0);
+                Blit(cmd, BlurredBackgroundRTHandleTemp, BlurredBackgroundRTHandle, BlurredBackgroundMaterial, 1);
+            }
+            cmd.SetGlobalTexture("_BlurredBackgroundRT", BlurredBackgroundRTHandle);
+            context.ExecuteCommandBuffer(cmd);
+            cmd.Clear();
+
+            CommandBufferPool.Release(cmd);
+        }
     }
     public void ReleaseRT()
     {

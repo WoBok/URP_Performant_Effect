@@ -85,6 +85,10 @@ public class BlurRenderPass : ScriptableRenderPass
     public BlurRenderPass()
     {
         renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+        SetParmas();
+    }
+    void SetParmas()
+    {
         passSettings = BlurRenderPassSettings.GetSettings();
         BlurSize = passSettings.BlurSize;
         DownSample = (10 - passSettings.DownSample) / 10f;

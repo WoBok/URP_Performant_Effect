@@ -51,21 +51,4 @@ public class BlurRenderPassParmaSetter : MonoBehaviour
             }
         }
     }
-    void Awake()
-    {
-        SetParma();
-    }
-#if UNITY_EDITOR
-    void Reset()
-    {
-        SetParma();
-        BlurRenderPassManager.Instance.BlurRenderPass.ReleaseRT();
-    }
-#endif
-    void SetParma()
-    {
-        BlurSize = PassSettings.BlurSize;
-        DownSample = PassSettings.DownSample;
-        Iterations = PassSettings.Iterations;
-    }
 }

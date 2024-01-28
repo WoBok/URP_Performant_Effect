@@ -42,7 +42,7 @@ namespace UnityEngine.UI
             SetBounds();
         }
         /// <summary>
-        /// 添加材质
+        /// 添加用于获得模糊后RT的材质
         /// </summary>
         void SetMaterial()
         {
@@ -60,7 +60,7 @@ namespace UnityEngine.UI
                 var corners = new Vector3[4];
                 rect.GetWorldCorners(corners);
                 var boundsSize = corners[2] - corners[0];
-                bounds.size = new Vector3(boundsSize.x, boundsSize.y, 0.1f);
+                bounds.size = new Vector3(boundsSize.x, boundsSize.y, 0.01f);
             }
         }
         /// <summary>

@@ -1,49 +1,51 @@
 using UnityEngine;
-using static UnityEngine.Experimental.Rendering.RayTracingAccelerationStructure;
 
 public class BlurRenderPassParmaSetter : MonoBehaviour
 {
-    BlurRenderPassSettings passSettings;
-    int m_BlurSize = 2;
+    BlurRenderPassSettings m_PassSettings;
+    BlurRenderPassSettings PassSettings
+    {
+        get
+        {
+            if (m_PassSettings == null)
+                m_PassSettings = BlurRenderPassSettings.GetSettings();
+            return m_PassSettings;
+        }
+    }
     public int BlurSize
     {
-        get => m_BlurSize;
+        get => PassSettings.BlurSize;
         set
         {
-            if (value != m_BlurSize)
+            if (value != PassSettings.BlurSize)
             {
-                m_BlurSize = value;
-                passSettings.BlurSize = value;
+                PassSettings.BlurSize = value;
                 BlurRenderPassManager.Instance.BlurRenderPass.BlurSize = value;
                 BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
             }
         }
     }
-    int m_DownSample = 7;
     public int DownSample
     {
-        get => m_DownSample;
+        get => PassSettings.DownSample;
         set
         {
-            if (value != m_DownSample)
+            if (value != PassSettings.DownSample)
             {
-                m_DownSample = value;
-                passSettings.DownSample = value;
-                BlurRenderPassManager.Instance.BlurRenderPass.DownSample = value;
+                PassSettings.DownSample = value;
+                BlurRenderPassManager.Instance.BlurRenderPass.DownSample = (10 - value) / 10f;
                 BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
             }
         }
     }
-    int m_Iterations = 1;
     public int Iterations
     {
-        get => m_Iterations;
+        get => PassSettings.Iterations;
         set
         {
-            if (value != m_Iterations)
+            if (value != PassSettings.Iterations)
             {
-                m_Iterations = value;
-                passSettings.Iterations = value;
+                PassSettings.Iterations = value;
                 BlurRenderPassManager.Instance.BlurRenderPass.Iterations = value;
                 BlurRenderPassManager.Instance.SetAllImageVerticesDirty();
             }
@@ -51,9 +53,19 @@ public class BlurRenderPassParmaSetter : MonoBehaviour
     }
     void Awake()
     {
-        passSettings = BlurRenderPassSettings.GetSettings();
-        BlurSize = passSettings.BlurSize;
-        DownSample = passSettings.DownSample;
-        Iterations = passSettings.Iterations;
+        SetParma();
+    }
+#if UNITY_EDITOR
+    void Reset()
+    {
+        SetParma();
+        BlurRenderPassManager.Instance.BlurRenderPass.ReleaseRT();
+    }
+#endif
+    void SetParma()
+    {
+        BlurSize = PassSettings.BlurSize;
+        DownSample = PassSettings.DownSample;
+        Iterations = PassSettings.Iterations;
     }
 }

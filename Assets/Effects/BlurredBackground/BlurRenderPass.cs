@@ -87,7 +87,7 @@ public class BlurRenderPass : ScriptableRenderPass
         renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
         passSettings = BlurRenderPassSettings.GetSettings();
         BlurSize = passSettings.BlurSize;
-        DownSample = passSettings.DownSample;
+        DownSample = (10 - passSettings.DownSample) / 10f;
         Iterations = passSettings.Iterations;
     }
     void CreateRenderTexture(ref RenderTexture renderTexture)

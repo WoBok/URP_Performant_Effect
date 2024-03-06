@@ -1,4 +1,4 @@
-Shader "Fur/Fur Base" {
+Shader "UPR Performant Effect/Fur/Fur Base" {
     Properties {
         _MainTex ("MainTex", 2D) = "white" { }
         _LightDirection ("LightDirection", vector) = (0.3, 0.1, -0.1, 0)

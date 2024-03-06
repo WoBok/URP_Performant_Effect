@@ -1,4 +1,4 @@
-Shader "Fur/Fur Render" {
+Shader "UPR Performant Effect/Fur/Fur Render" {
     Properties {
         _MainTex ("Main Tex", 2D) = "white" { }
         _LightDirection ("Light Direction", vector) = (0.3, 0.1, -0.1, 0)

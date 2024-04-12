@@ -16,7 +16,7 @@ Shader "UPR Performant Effect/Simple Light" {
         [Toggle]SpecularSwitch ("Specular Switch", int) = 1
         _SpecularColor ("Specular Color", Color) = (1, 1, 1, 1)
         _SpecularIntensity ("Specular Intensity", Range(0, 10)) = 1
-        _Smoothness ("Smoothness", Range(0.03, 2)) = 0.35
+        _Smoothness ("Smoothness", Range(0.03, 2)) = 0.5
 
         [Header(Normal)]
         [Toggle]NormalSwitch ("Normal Switch", int) = 0
@@ -27,6 +27,12 @@ Shader "UPR Performant Effect/Simple Light" {
         [Toggle]FresnelSwitch ("Fresnel Switch", int) = 1
         _FresnelColor ("Fresnel Color", Color) = (1, 1, 1, 0)
         _FresnelPower ("Fresnel Power", Range(0, 8)) = 3
+
+        [Header(HSI)]
+        [Toggle]HSISwitch ("HSI Switch", int) = 1
+        _Brightness ("Brightness", Range(0, 10)) = 1
+        _Saturation ("Saturation", Range(0, 10)) = 1
+        _Contrast ("Contrast", Range(0, 10)) = 1
 
         [Header(Alpha)]
         _Alpah ("Alpha", Range(0, 1)) = 1
@@ -41,7 +47,7 @@ Shader "UPR Performant Effect/Simple Light" {
         [Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", float) = 0
         [Enum(On, 1, Off, 0)]_ZWrite ("ZWrite", float) = 1
         [Enum(UnityEngine.Rendering.CompareFunction)]_ZTest ("ZTest", float) = 4
-        [Enum(UnityEngine.Rendering.CullMode)]_Cull ("Cull", float) = 1
+        [Enum(UnityEngine.Rendering.CullMode)]_Cull ("Cull", float) = 2
     }
 
     SubShader {
@@ -59,8 +65,10 @@ Shader "UPR Performant Effect/Simple Light" {
 
             #pragma vertex Vertex
             #pragma fragment Fragment
+
             #pragma multi_compile_fog
 
+            #pragma shader_feature HSISWITCH_ON
             #pragma shader_feature DIFFUSESWITCH_ON
             #pragma shader_feature SPECULARSWITCH_ON
             #pragma shader_feature FRESNELSWITCH_ON
@@ -93,6 +101,12 @@ Shader "UPR Performant Effect/Simple Light" {
             CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
             half4 _LightDirection;
+
+            #if defined(HSISWITCH_ON)
+                half _Brightness;
+                half _Saturation;
+                half _Contrast;
+            #endif
 
             #if defined(DIFFUSESWITCH_ON)
                 half4 _FrontLightColor;
@@ -219,6 +233,13 @@ Shader "UPR Performant Effect/Simple Light" {
 
                 #if defined(FOGSWITCH_ON)
                     color.rgb = MixFog(color.rgb, input.fogFactor);
+                #endif
+
+                #if defined(HSISWITCH_ON)
+                    color *= _Brightness;
+                    half gray = dot(color, half3(0.2125, 0.7154, 0.0721));
+                    color = lerp(half3(gray, gray, gray), color, _Saturation);
+                    color = lerp(half3(0.5, 0.5, 0.5), color, _Contrast);
                 #endif
 
                 return half4(color, _Alpah);

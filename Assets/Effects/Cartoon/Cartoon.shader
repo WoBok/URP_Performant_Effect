@@ -1,9 +1,19 @@
-Shader "UPR Performant Effect/Simple Light GPU Instancing" {
+Shader "UPR Performant Effect/Cartoon" {
     Properties {
         _BaseMap ("Albedo", 2D) = "white" { }
 
         [Space(15)]
         _LightDirection ("Light Direction", vector) = (0.1, 0.2, 0.1, 0)
+
+        [Header(Outline)]
+        [Toggle]OutlineSwitch ("Outline Switch", int) = 1
+        _Width ("OutlineWidth", Range(0, 1)) = 0.1
+        _OutlineColor ("OutlineColor", Color) = (1, 1, 1, 1)
+
+        [Header(Hightlight)]
+        _HightlightMap ("Hightlight Map", 2D) = "white" { }
+        _HightlightIntensity ("Hightlight Intensity", Range(0, 10)) = 1
+        [Toggle]_HightlightMapInvert ("Hightlight Map Invert", int) = 0
 
         [Header(Diffuse)]
         [Toggle]DiffuseSwitch ("Diffuse Switch", int) = 1
@@ -57,11 +67,11 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
 
             HLSLPROGRAM
 
-            #pragma multi_compile_instancing
             #pragma vertex Vertex
             #pragma fragment Fragment
             #pragma multi_compile_fog
 
+            #pragma shader_feature OUTLINESWITCH_ON
             #pragma shader_feature DIFFUSESWITCH_ON
             #pragma shader_feature SPECULARSWITCH_ON
             #pragma shader_feature FRESNELSWITCH_ON
@@ -76,7 +86,6 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
                 float3 normalOS : NORMAL;
                 float4 tangentOS : TANGENT;
                 float2 texcoord : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings {
@@ -88,14 +97,22 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
                 float4 TtoW1 : TEXCOORD4;
                 float4 TtoW2 : TEXCOORD5;
                 float fogFactor : TEXCOORD6;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             sampler2D _BaseMap;
+            sampler2D _HightlightMap;
             sampler2D _NormalMap;
-
+            CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
             half4 _LightDirection;
+
+            #if defined(OUTLINESWITCH_ON)
+                float _Width;
+                half4 _OutlineColor;
+            #endif
+
+            float _HightlightIntensity;
+            float _HightlightMapInvert;
 
             #if defined(DIFFUSESWITCH_ON)
                 half4 _FrontLightColor;
@@ -125,17 +142,16 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
             #if defined(ALPHACLIPPING_ON)
                 half _AlphaClipThreshold;
             #endif
+            
+            CBUFFER_END
 
             Varyings Vertex(Attributes input) {
 
                 Varyings output = (Varyings)0;
-
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-
+                
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 
-                #if defined(DIFFUSESWITCH_ON) || defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON)
+                #if defined(DIFFUSESWITCH_ON) || defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON) || defined(OUTLINESWITCH_ON)
                     output.normalWS = mul(input.normalOS, (float3x3)unity_WorldToObject);
 
                     #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON)
@@ -165,12 +181,11 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
             }
 
             half4 Fragment(Varyings input) : SV_Target {
-                UNITY_SETUP_INSTANCE_ID(input);
 
                 half4 albedo = tex2D(_BaseMap, input.uv.xy);
                 half3 color = albedo.rgb;
 
-                #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON)
+                #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON) || defined(OUTLINESWITCH_ON)
                     #if defined(NORMALSWITCH_ON)
                         half3 positionWS = float3(input.TtoW0.w, input.TtoW1.w, input.TtoW2.w);
                     #else
@@ -178,7 +193,7 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
                     #endif
                 #endif
 
-                #if defined(DIFFUSESWITCH_ON) || defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON)
+                #if defined(DIFFUSESWITCH_ON) || defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(NORMALSWITCH_ON) || defined(OUTLINESWITCH_ON)
                     #if defined(NORMALSWITCH_ON)
                         half3 normalWS = UnpackNormal(tex2D(_NormalMap, input.uv.zw));
                         normalWS.xy * _NormalScale;
@@ -201,7 +216,7 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
                     color = diffuse;
                 #endif
 
-                #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON)
+                #if defined(SPECULARSWITCH_ON) || defined(FRESNELSWITCH_ON) || defined(OUTLINESWITCH_ON)
                     half3 viewDir = normalize(_WorldSpaceCameraPos.xyz - positionWS);
                 #endif
 
@@ -225,6 +240,17 @@ Shader "UPR Performant Effect/Simple Light GPU Instancing" {
                 #if defined(FOGSWITCH_ON)
                     color.rgb = MixFog(color.rgb, input.fogFactor);
                 #endif
+
+                #if defined(OUTLINESWITCH_ON)
+                    float outlineFactor = saturate(dot(normalWS, normalize(viewDir)));
+                    outlineFactor = step(_Width, outlineFactor);
+                    color = lerp(_OutlineColor.rgb, color, outlineFactor);
+                    _Alpah = lerp(_OutlineColor.a, _Alpah, outlineFactor);
+                #endif
+
+                half4 hightFactor = tex2D(_HightlightMap, input.uv.xy);
+                hightFactor = lerp(hightFactor, 1 - hightFactor, _HightlightMapInvert);
+                color = color + color * hightFactor.rgb * _HightlightIntensity;
 
                 return half4(color, _Alpah);
             }

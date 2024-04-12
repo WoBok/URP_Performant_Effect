@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7547942474704643952
+--- !u!114 &-6320692545531274376
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,18 +20,15 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SimpleLight
-  m_Shader: {fileID: 4800000, guid: 2adb526895ed8c843ad25516721f166d, type: 3}
+  m_Name: Koi @KoiSwim
+  m_Shader: {fileID: 4800000, guid: cde953d9160f38245b2599dc4be9b656, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - DIFFUSESWITCH_ON
-  - FRESNELSWITCH_ON
-  - HSISWITCH_ON
-  - NORMALSWITCH_ON
-  - SPECULARSWITCH_ON
+  - OUTLINESWITCH_ON
   m_InvalidKeywords:
-  - SHADOWSWITCH_ON
+  - _HIGHTLIGHTMAPINVERT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -43,8 +40,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 47b02337105cf7b45a7440446c82c984, type: 3}
-        m_Scale: {x: 5, y: 2.5}
+        m_Texture: {fileID: 2800000, guid: e17a7889078fac443838c0aa027065b2, type: 3}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
@@ -66,6 +63,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _HightlightMap:
+        m_Texture: {fileID: 2800000, guid: 2fd032a875724cc4d866534a8d94bf12, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -75,8 +76,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: e6791c4766d0e444c93c17e576494fd5, type: 3}
-        m_Scale: {x: 5, y: 2.5}
+        m_Texture: {fileID: 2800000, guid: 069a40c71b8e45a4d8e0d5486c56c2bb, type: 3}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
@@ -107,45 +108,41 @@ Material:
     - AlphaClipping: 0
     - DiffuseSwitch: 1
     - FogSwitch: 0
-    - FresnelSwitch: 1
-    - HSISwitch: 1
-    - NormalSwitch: 1
-    - ShadowSwitch: 1
-    - SpecularSwitch: 1
+    - FresnelSwitch: 0
+    - NormalSwitch: 0
+    - OutlineSwitch: 1
+    - SpecularSwitch: 0
     - _Alpah: 1
     - _AlphaClip: 0
     - _AlphaClipThreshold: 0.5
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Brightness: 1.5
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _Contrast: 1.2
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DiffuseBackIntensity: 0.2
+    - _DiffuseBackIntensity: 0.3
     - _DiffuseFrontIntensity: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _FresnelPower: 3
-    - _Gloss: 2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HightlightIntensity: 2.58
+    - _HightlightMapInvert: 1
+    - _MapInvert: 0
     - _Metallic: 0
     - _NormalScale: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Saturation: 2
-    - _ShadowAlphaClipThreshold: 1
-    - _ShadowFalloff: 0.01
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -153,6 +150,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _Width: 0.317
     - _WorkflowMode: 1
     - _ZTest: 4
     - _ZWrite: 1
@@ -161,10 +159,10 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FresnelColor: {r: 0, g: 0.615, b: 1, a: 1}
+    - _FresnelColor: {r: 0.8584906, g: 0.51925707, b: 0.23082057, a: 0}
     - _FrontLightColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightDirection: {r: 0.1, g: 0.2, b: 0.1, a: 0}
-    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpecularColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
